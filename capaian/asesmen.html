@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="shortcut icon" href="../picture/math.png" type="image/x-icon">
+  <title>Asesmen</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #a88830;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .comment-container {
+      background: #fff;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    form textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      resize: vertical;
+      min-height: 80px;
+      font-size: 1rem;
+    }
+
+    form button {
+      background-color: #a88830;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      width: 100%;
+    }
+
+    form button:hover {
+      background-color: #d6b250;
+    }
+
+    .comment {
+      background: #f9f9f9;
+      padding: 12px;
+      margin-top: 10px;
+      border-left: 4px solid #a88830;
+      border-radius: 4px;
+      position: relative;
+      word-wrap: break-word;
+    }
+
+    .comment p {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .comment a {
+      color: #1e88e5;
+      word-break: break-all;
+      text-decoration: none;
+    }
+
+    .comment a:hover {
+      text-decoration: underline;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-bottom: 10px;
+      text-decoration: none;
+      color: #d6b250;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+
+    .back-button:hover {
+      text-decoration: underline;
+    }
+
+    .delete-btn {
+      background-color: #e53935;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .delete-btn:hover {
+      background-color: #b71c1c;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+
+      .comment-container {
+        padding: 15px;
+        width: 100%;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      form button {
+        font-size: 0.95rem;
+        padding: 10px;
+      }
+
+      .comment {
+        font-size: 0.9rem;
+        padding: 10px;
+      }
+
+      h2 {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="comment-container">
+    <a href="../index.html" class="back-button">← Kembali</a>
+    <h2>Asesmen</h2>
+    <form id="commentForm">
+      <textarea id="comment" placeholder="Tulis komentar..." required></textarea>
+      <button type="submit">Kirim</button>
+    </form>
+    <div id="commentList"></div>
+  </div>
+
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <script>
+    // Konfigurasi Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2DxJ289WAhiWO_1HZ7AohAnw5iYS2axM",
+      authDomain: "asesmen-ed74d.firebaseapp.com",
+      databaseURL: "https://asesmen-ed74d-default-rtdb.firebaseio.com",
+      projectId: "asesmen-ed74d",
+      storageBucket: "asesmen-ed74d.appspot.com",
+      messagingSenderId: "858170396859",
+      appId: "1:858170396859:web:c92551cad0561479ae199e",
+      measurementId: "G-H7ZDF4EWMG"
+    };
+
+    // Inisialisasi Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const commentList = document.getElementById("commentList");
+
+    function formatCommentText(text) {
+      const urlPattern = /(https?:\/\/[^\s]+)/g;
+      return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
+    }
+
+    function saveComment(text) {
+      const now = new Date();
+      const date = now.toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+      });
+
+      firebase.database().ref("comments").push({
+        text: text,
+        timestamp: now.getTime(),
+        date: date
+      });
+    }
+
+    function deleteComment(key) {
+      const konfirmasi = confirm("Apakah kamu berhak menghapus pesan ini?");
+      if (konfirmasi) {
+        firebase.database().ref("comments/" + key).remove();
+      }
+    }
+
+    function loadComments() {
+      firebase.database().ref("comments").orderByChild("timestamp").on("value", (snapshot) => {
+        const data = snapshot.val();
+        commentList.innerHTML = "";
+        if (data) {
+          const keys = Object.keys(data).sort((a, b) => data[b].timestamp - data[a].timestamp);
+          keys.forEach((key) => {
+            const commentBox = document.createElement("div");
+            commentBox.classList.add("comment");
+            commentBox.innerHTML = `
+              <button class="delete-btn" onclick="deleteComment('${key}')">Hapus</button>
+              <p><strong>${data[key].date || "Tidak diketahui"}</strong></p>
+              <p>${formatCommentText(data[key].text)}</p>
+            `;
+            commentList.appendChild(commentBox);
+          });
+        }
+      });
+    }
+
+    document.getElementById("commentForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const comment = document.getElementById("comment").value.trim();
+      if (comment) {
+        const confirmed = confirm("Apakah kamu berhak mengetik pesan ini?");
+        if (confirmed) {
+          saveComment(comment);
+          document.getElementById("commentForm").reset();
+        }
+      }
+    });
+
+    window.addEventListener("DOMContentLoaded", loadComments);
+  </script>
+
+</body>
+</html>

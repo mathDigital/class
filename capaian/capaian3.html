@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ruang kita</title>
+  <style>
+    /* CSS tetap sama seperti yang kamu tulis */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #a88830;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 800px;
+        width: 100%;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .comment-box, .reply-box {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    input, textarea {
+        padding: 12px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        outline: none;
+    }
+
+    input:focus, textarea:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+    }
+
+    button {
+        padding: 12px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    .comments-section {
+        margin-top: 20px;
+    }
+
+    .comment {
+        background-color: #ffffff;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .comment:hover {
+        transform: scale(1.02);
+    }
+
+    .username {
+        font-weight: bold;
+        color: #007bff;
+        margin-bottom: 5px;
+    }
+
+    .text {
+        color: #333;
+        word-wrap: break-word;
+    }
+
+    .delete-btn {
+        background-color: #dc3545;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .delete-btn:hover {
+        background-color: #b02a37;
+    }
+
+    .reply-box {
+        display: none;
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+    .reply {
+        background-color: #f1f1f1;
+        padding: 10px;
+        border-left: 4px solid #007bff;
+        margin-top: 5px;
+        border-radius: 8px;
+    }
+    .btn {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 2em;
+    }
+    
+    .btn:hover {
+      background-color: #0056b3;
+    }
+</style>
+  
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div style="margin-top: 20px;">
+      <a href="../index.html">
+        <button class="btn">Kembali</button>
+      </a>
+    </div>
+    <div class="comment-box">
+      <h2>Nama Siswa</h2>
+      <input type="text" id="usernameInput" placeholder="Masukkan nama dan kelas..." maxlength="50">
+      <h2>Komentar</h2>
+      <textarea id="commentInput" placeholder="Tulis komentar..." maxlength="300"></textarea>
+      <button onclick="addComment()">Kirim</button>
+    </div>
+    <div id="commentsSection" class="comments-section"></div>
+  </div>
+
+  <script>
+    // Konfigurasi Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBI04RBXaMDZRSFPTPxCOMMrshBtIx3LXU",
+      authDomain: "komen-6ad89.firebaseapp.com",
+      projectId: "komen-6ad89",
+      storageBucket: "komen-6ad89.appspot.com",
+      messagingSenderId: "851789115544",
+      appId: "1:851789115544:web:864cdc412b4e93ff1460ed",
+      measurementId: "G-753KYGZSK2"
+    };
+
+    // Inisialisasi Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function loadComments() {
+      const commentsSection = document.getElementById('commentsSection');
+      commentsSection.innerHTML = '';
+      db.ref('comments').once('value', snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          Object.entries(data).forEach(([id, comment]) => {
+            const commentElement = createCommentElement(comment.username, comment.text, comment.replies || [], id);
+            commentsSection.appendChild(commentElement);
+          });
+        }
+      });
+    }
+
+    function addComment() {
+      const username = document.getElementById('usernameInput').value.trim();
+      const commentText = document.getElementById('commentInput').value.trim();
+      if (!username || !commentText) return alert('Nama pengguna dan komentar harus diisi.');
+      if (commentText.length > 300) return alert('Komentar terlalu panjang! Maksimal 300 karakter.');
+
+      const newCommentRef = db.ref('comments').push();
+      newCommentRef.set({
+        username: username,
+        text: commentText,
+        replies: []
+      }, () => {
+        document.getElementById('usernameInput').value = '';
+        document.getElementById('commentInput').value = '';
+        loadComments();
+      });
+    }
+
+    function createCommentElement(username, text, replies = [], id) {
+      const commentElement = document.createElement('div');
+      commentElement.classList.add('comment');
+      commentElement.innerHTML = `
+        <div class="username">${username}</div>
+        <div class="text">${text}</div>
+        <br>
+        <button onclick="toggleReplyBox(this)">Balas</button>
+        <button class="delete-btn" onclick="confirmDeleteComment('${id}')">Hapus</button>
+        <div class="reply-box" style="display: none;">
+          <textarea placeholder="Tulis balasan..." maxlength="300"></textarea>
+          <button onclick="addReply(this, '${id}')">Kirim Balasan</button>
+        </div>
+      `;
+
+      replies.forEach((replyText, index) => {
+        const replyElement = document.createElement('div');
+        replyElement.classList.add('comment', 'reply');
+        replyElement.innerHTML = `
+          <div class="username">Balasan</div>
+          <div class="text">${replyText}</div>
+          <button class="delete-btn" onclick="confirmDeleteReply('${id}', ${index})">Hapus</button>
+        `;
+        commentElement.appendChild(replyElement);
+      });
+
+      return commentElement;
+    }
+
+    function toggleReplyBox(button) {
+      const replyBox = button.nextElementSibling.nextElementSibling;
+      if (replyBox.style.display === 'none') {
+        replyBox.style.display = 'block';
+        button.textContent = 'Kembali';
+      } else {
+        replyBox.style.display = 'none';
+        button.textContent = 'Balas';
+      }
+    }
+
+    function addReply(button, commentId) {
+      const replyText = button.previousElementSibling.value.trim();
+      if (!replyText) return;
+      if (replyText.length > 300) return alert('Balasan terlalu panjang! Maksimal 300 karakter.');
+
+      const commentRef = db.ref('comments/' + commentId + '/replies');
+      commentRef.once('value', snapshot => {
+        const replies = snapshot.val() || [];
+        replies.push(replyText);
+        commentRef.set(replies, loadComments);
+      });
+    }
+
+    function confirmDeleteComment(commentId) {
+      if (confirm("Apakah kamu yakin ingin menghapus komentar ini?")) {
+        db.ref('comments/' + commentId).remove(loadComments);
+      }
+    }
+
+    function confirmDeleteReply(commentId, replyIndex) {
+      const commentRef = db.ref('comments/' + commentId + '/replies');
+      commentRef.once('value', snapshot => {
+        const replies = snapshot.val() || [];
+        replies.splice(replyIndex, 1);
+        commentRef.set(replies, loadComments);
+      });
+    }
+
+    window.onload = loadComments;
+  </script>
+</body>
+</html>

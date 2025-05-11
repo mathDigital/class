@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>MATH Digital</title>
+  <link rel="shortcut icon" href="picture/math.png" type="image/x-icon">
+  <link rel="stylesheet" href="css/index.css">
+  <script src="https://unpkg.com/feather-icons"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+</head>
+<body>
+  <div class="navbar">
+    <nav>
+      <input type="checkbox" id="show-search">
+      <input type="checkbox" id="show-menu">
+      <label for="show-menu" class="menu-icon"><i class="fas fa-bars"></i></label>
+      <div class="content">
+      <div class="logo"><a href="#">MATH</a></div>
+        <ul class="links">
+          <li><a href="#satu">Beranda</a></li>
+          <li><a href="#dua">Ruang Lingkup</a></li>
+          <li>
+            <a class="desktop-link">Materi ajar</a>
+            <input type="checkbox" id="show-services">
+            <label for="show-services">Materi ajar</label>
+            <ul>
+              <li><a href="https://67ef5569df9b637c6363083b--chimerical-tarsier-87d47c.netlify.app/">Eksponen</a></li>
+              <li><a href="https://graceful-pasca-f08ba9.netlify.app/">Barisan Deret</a></li>
+              <li><a href="https://67ee554681c45f5683e31bd5--cute-cactus-de1ec0.netlify.app/">Linier</a></li>
+              <li>
+                <a class="desktop-link">Semester 2</a>
+                <input type="checkbox" id="show-items">
+                <label for="show-items">Semester 2</label>
+                <ul>
+                  <li><a href="https:67f204471225c203bc6fa748--strong-genie-f19c10.netlify.app/">kuadrat</a></li>
+                  <li><a href="https:67f205ee393544d357befbee--fantastic-kataifi-2eb0a2.netlify.app/">Trigonometri</a></li>
+                  <li><a href="https:67ef6869fd31f5befbc9cf59--papaya-crisp-abe6de.netlify.app/">Statistika</a></li>
+                  <li><a href="https:67f217d867495d10d3f971e2--creative-profiterole-99aa19.netlify.app/">Peluang</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li><a href="capaian/asesmen.html">Asesmen</a></li>
+          <li><a href="capaian/raport.html">Raport</a></li>
+        </ul>
+      </div>
+        <a href=""><i data-feather="home"></i></a>
+    </nav>
+</div>
+<section class="satu" id="satu">
+  <div class="container">
+    <div class="header"><img class="logo" src="picture/logo.png" alt=""> SMA NEGERI 1 KEDIRI</div>
+    <div class="title">SELAMAT DATANG DI MATH DIGITAL</div>
+    <div class="subtitle">Platform Digital Manajemen Math Terpadu</div>
+    <div class="gmbr">
+      <img class="math" src="picture/math.png" alt="">
+      <img class="math2" id="musicBtn" src="picture/logo-music.png" alt="Play Music">
+       <audio id="music" src="audio/mars.aac"></audio>
+    </div>
+    <div class="badge">T.A. 2024/2025 FASE E</div>
+  </div>
+</section>
+
+<section class="dua" id="dua">
+  <h1>Ruang Lingkup Math Digital</h1>
+  <br>
+  <div class="container">
+      <div class="item" onclick="window.location.href='capaian/capaian1.html'">
+          <img src="picture/capaian1.png" alt="Capain pembelajaran">
+          <h3>Capaian Pembelajaran</h3>
+      </div>
+      <div class="item" onclick="window.location.href='capaian/materi.html'">
+          <img src="picture/capaian2.png" alt="Materi ajar">
+          <h3>Materi Ajar</h3>
+      </div>
+      <div class="item" onclick="window.location.href='capaian/lkpd.html'">
+          <img src="picture/lkpd.png" alt="skpd">
+          <h3>LKPD</h3>
+      </div>
+      <div class="item" onclick="window.location.href='https:t.me/+HJebInjt3VZmOTA1'">
+          <img src="picture/capaian3.png" alt="Ruang Kita">
+          <h3>Ruang Kita</h3>
+      </div>
+      <div class="item" onclick="window.location.href='capaian/asesmen.html'">
+          <img src="picture/capaian4.png" alt="Asesmen">
+          <h3>Asesmen</h3>
+      </div>
+      <div class="item" onclick="window.location.href='capaian/raport.html'">
+          <img src="picture/capaian5.png" alt="Raport">
+          <h3>Raport</h3>
+      </div>
+  </div>
+</section>
+<footer class="footer">
+  <p>&copy; 2025 MATH Digital.</p>
+</footer>
+
+<script>
+    const btn = document.getElementById("musicBtn");
+    const music = document.getElementById("music");
+
+    btn.addEventListener("click", () => {
+      if (music.paused) {
+        music.play();
+        btn.classList.add("playing");
+      } else {
+        music.pause();
+        btn.classList.remove("playing");
+      }
+    });
+
+    // Jika musik selesai, hapus animasi
+    music.addEventListener("ended", () => {
+      btn.classList.remove("playing");
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const menuCheckbox = document.getElementById("show-menu");
+        const sidebar = document.querySelector("nav .content .links");
+      
+        document.addEventListener("click", function (event) {
+          if (!sidebar.contains(event.target) && !menuCheckbox.contains(event.target)) {
+            menuCheckbox.checked = false;
+          }
+        });
+      });
+</script>
+</body>
+</html>
